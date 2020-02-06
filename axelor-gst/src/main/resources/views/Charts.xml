@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.1.xsd">
+
+	<chart name="chart-customer-per-state" title="Customer per state : Pie chart">
+		<dataset type="sql"> 
+			<![CDATA[
+				SELECT 
+					state.name as state_name, 
+					count(distinct partner_addr.id) as partner_count
+				FROM 
+					gst_state state
+				LEFT JOIN 
+					base_address address on address.state = state.id
+				LEFT JOIN(
+					SELECT 
+						partner.id, 
+						pa.address as addr 
+					FROM
+						base_partner partner 
+					LEFT JOIN 
+						base_partner_address pa on partner.id = pa.partner
+					WHERE 
+						partner.is_customer = true
+				) 
+					partner_addr on address.id = partner_addr.addr
+				GROUP BY 
+					state.name
+			]]>
+		</dataset>
+		<category key="state_name" type="text" />
+		<series key="partner_count" groupBy="state_name" type="pie" />
+		<config name="percent" value="true" />
+	</chart>
+	
+	<chart name="chart-unpaid-invoice-per-customer" title="Unpaid invoices per customer : Bar chart" onInit="action.unpaid.chart.set.date">
+		<search-fields>
+			<field type="date" name="fromDate" title="From Date" widget="required" x-required="true" />
+			<field type="date" name="toDate" title="To Date" widget="required" x-required="true" />
+		</search-fields>
+		<dataset type="sql"> 
+			<![CDATA[
+				SELECT 
+					partner.name as p_name, 
+					count(inv.id) as invoice_count
+				FROM 
+					base_partner partner
+				LEFT JOIN(
+					SELECT 
+						invoice.id as id ,invoice.partner as p
+					FROM 
+						account_invoice invoice
+					WHERE 
+						invoice.status_select NOT IN (3,4)
+						AND 
+						invoice.invoice_date between DATE(:fromDate) AND DATE(:toDate)
+				) inv on inv.p = partner.id
+				WHERE
+					partner.is_customer = true 
+				GROUP BY 
+					partner.name
+			]]>
+		</dataset>
+		<category key="p_name" type="text" />
+		<series key="invoice_count" groupBy="p_name" type="bar" />
+	</chart>
+	
+	<action-record model="com.axelor.apps.base.db.Partner" name="action.unpaid.chart.set.date">
+		<field name="fromDate" expr="eval:LocalDate.now().getYear() + '-' + LocalDate.now().getMonth() + '-01'"/>
+		<field name="toDate" expr="eval:__date__"/>
+	</action-record>
+	
+	<chart name="chart-paid-invoice-per-category-product" title="Paid invoices per category per product: Bar chart" onInit="action.unpaid.chart.set.date">
+		<search-fields>
+			<field type="date" name="fromDate" title="From Date" widget="required" x-required="true" />
+			<field type="date" name="toDate" title="To Date" widget="required" x-required="true" />
+		</search-fields>
+		<dataset type="sql"> 
+			<![CDATA[
+				SELECT 
+					product.name as p_name, 
+					count(inv_p.id) as invoices_p,
+					pcategory.name as cat
+				FROM 
+					base_product product
+				LEFT JOIN
+					base_product_category pcategory on product.product_category = pcategory.id
+				LEFT JOIN(
+					SELECT 
+						invoice.id as id ,invline.product as p
+					FROM 
+						account_invoice invoice
+					LEFT JOIN
+						account_invoice_line invline on invline.invoice = invoice.id
+					WHERE 
+						invoice.status_select = 3 
+						AND
+						invoice.invoice_date between DATE(:fromDate) AND DATE(:toDate) 
+				) inv_p on inv_p.p = product.id
+				group by 
+					pcategory.name, product.name
+			]]>
+		</dataset>
+		<category key="cat" type="text" />
+		<series key="invoices_p" groupBy="p_name" type="bar" />
+	</chart>
+	
+	<chart name="chart-invoice-per-status-amount" title="Invoice per status: amount bar chart">
+		<dataset type="jpql"> 
+			<![CDATA[
+				SELECT
+					invoice.statusSelect as status,
+					SUM(invoice.inTaxTotal) as amount
+				FROM
+					Invoice invoice
+				GROUP BY
+					invoice.statusSelect
+			]]>
+		</dataset>
+		<category key="status" type="text" />
+		<series key="amount" groupBy="status" type="bar" />
+	</chart>
+	
+	<chart name="chart-invoice-per-status-invoice" title="Invoice per status: number of invoices line chart">
+		<dataset type="jpql"> 
+			<![CDATA[
+				SELECT
+					invoice.statusSelect as status,
+					count(invoice.id) as invoices
+				FROM
+					Invoice invoice
+				GROUP BY
+					invoice.statusSelect
+			]]>
+		</dataset>
+		<category key="status" type="text"/>
+		<series key="invoices" groupBy="status" type="line" />
+	</chart>
+	
+	<action-view name="action-invoice-grid-view-status-date-wise" title="Draft Invoices" model="com.axelor.apps.account.db.Invoice">
+	    <view type="grid" name="invoice-grid" />
+	    <domain>self.statusSelect NOT IN (:statusPaid,:statusCanceled) AND (self.invoiceDate &lt;= :fromDate)</domain>
+		<context name="statusPaid" expr="3"/>
+		<context name="statusCanceled" expr="4"/>	
+		<context name="fromDate" expr="eval:__date__.minusMonths(1)"/>
+	</action-view>
+</object-views>

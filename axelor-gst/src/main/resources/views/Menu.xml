@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.1.xsd">
+	
+	<menuitem name="gst-root" title="Gst Application" if="__config__.app.isApp('gst')" icon="fa-file-text-o" icon-background="#31b4a9" />
+	
+		<menuitem title="Company" name="gst-root-company" action="action.gst.company.view" parent="gst-root"/>
+		<action-view name="action.gst.company.view" title="Company" model="com.axelor.apps.base.db.Company">
+			<view type="grid" name="company-grid"/>
+			<view type="form" name="company-form"/>
+		</action-view>
+		
+		<menuitem title="Partner" name="gst-root-partner" action="action.gst.partner.view" parent="gst-root"/>
+		<action-view name="action.gst.partner.view" title="Partner" model="com.axelor.apps.base.db.Partner">
+			<view type="cards" name="partner-cards" />
+			<view type="grid" name="partner-grid" />
+			<view type="form" name="partner-form" />
+		</action-view>
+		
+	<menuitem title="Products" name="gst-root-products" parent="gst-root"/>
+	
+		<menuitem title="Product" name="gst-root-product" action="action.gst.product.view" parent="gst-root-products"/>
+		<action-view name="action.gst.product.view" title="Product" model="com.axelor.apps.base.db.Product"> 
+			<view type="cards" name="product-cards" />
+			<view type="grid" name="product-grid" />
+			<view type="form" name="product-form" />
+		</action-view>
+		
+		<menuitem title="Product Category" name="gst-root-product-category" action="action.gst.product.category.view" parent="gst-root-products"/>
+		<action-view name="action.gst.product.category.view" title="Product Category" model="com.axelor.apps.base.db.ProductCategory">
+			<view type="grid" name="product-category-grid"/>
+			<view type="form" name="product-category-form"/>
+		</action-view>
+		
+	<menuitem title="Invoices" name="gst-root-invoice" parent="gst-root"/>
+	
+		<menuitem title="Create Invoice" name="gst-root-invoice-create" parent="gst-root-invoice" action="action.gst.invoice.create"/>
+		<action-view name="action.gst.invoice.create" title="Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="form" name="invoice-form"/>
+			<view type="grid" name="invoice-grid"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+		
+		<menuitem title="All Invoices" name="gst-root-invoice-all" parent="gst-root-invoice" action="action.gst.invoice.all"/>
+		<action-view name="action.gst.invoice.all" title="All Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="grid" name="invoice-grid"/>
+			<view type="form" name="invoice-form"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+		
+		<menuitem title="Draft Invoices" name="gst-root-invoice-draft" parent="gst-root-invoice" action="action.gst.invoice.draft"/>
+		<action-view name="action.gst.invoice.draft" title="Draft Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="grid" name="invoice-grid"/>
+			<view type="form" name="invoice-form"/>
+			<domain>self.statusSelect = :status</domain>
+			<context name="status" expr="1"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+	
+		<menuitem title="Validated Invoices" name="gst-root-invoice-validated" parent="gst-root-invoice" action="action.gst.invoice.validated"/>
+		<action-view name="action.gst.invoice.validated" title="Validated Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="grid" name="invoice-grid"/>
+			<view type="form" name="invoice-form"/>
+			<domain>self.statusSelect = :status</domain>
+			<context name="status" expr="2"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+		
+		<menuitem title="Ventilated Invoices" name="gst-root-invoice-ventilated" parent="gst-root-invoice" action="action.gst.invoice.ventilated"/>
+		<action-view name="action.gst.invoice.ventilated" title="Ventilated Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="grid" name="invoice-grid"/>
+			<view type="form" name="invoice-form"/>
+			<domain>self.statusSelect = :status</domain>
+			<context name="status" expr="3"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+		
+		<menuitem title="Canceled Invoices" name="gst-root-invoice-canceled" parent="gst-root-invoice" action="action.gst.invoice.canceled"/>
+		<action-view name="action.gst.invoice.canceled" title="Canceled Invoices" model="com.axelor.apps.account.db.Invoice">
+			<view type="grid" name="invoice-grid"/>
+			<view type="form" name="invoice-form"/>
+			<domain>self.statusSelect = :status</domain>
+			<context name="status" expr="4"/>
+			<context name="_operationTypeSelect" expr="eval:3"/>
+			<context name="todayDate" expr="eval:__config__.app.getTodayDate()" />
+		</action-view>
+		
+	<menuitem title="Configurations" name="gst-root-config" parent="gst-root"/>
+	
+		<menuitem title="Addresses" name="gst-root-config-address" action="action.gst.address.view" parent="gst-root-config"/>
+		<action-view name="action.gst.address.view" title="Address" model="com.axelor.apps.base.db.Address">
+			<view type="grid" name="address-grid" />
+			<view type="form" name="address-form" />
+		</action-view>
+		
+		<menuitem title="States" name="gst-root-config-state" action="action.gst.state.view" parent="gst-root-config"/>
+		<action-view name="action.gst.state.view" title="State" model="com.axelor.apps.gst.db.State">
+			<view type="grid" name="state-grid" /> 
+			<view type="form" name="state-form" />
+		</action-view>
+		
+	<menuitem name="gst-reports" title="Reports" parent="gst-root"/>
+	
+		<menuitem name="gst-report-all" parent="gst-reports" title="Reports!" action="action.gst.reports"/>
+		<action-view name="action.gst.reports" title="Reports!">
+	    	<view type="dashboard" name="report.dashboard"/>
+		</action-view>
+		
+	<dashboard name="report.dashboard" title="Reports!">
+	    <dashlet action="chart:chart-customer-per-state"/>
+	    <dashlet action="chart:chart-unpaid-invoice-per-customer"/>
+	    <dashlet action="chart:chart-paid-invoice-per-category-product"/>
+	    <dashlet action="chart:chart-invoice-per-status-amount"/>
+	    <dashlet action="chart:chart-invoice-per-status-invoice"/>
+	    <dashlet action="action-invoice-grid-view-status-date-wise"/>
+  	</dashboard>
+</object-views>
